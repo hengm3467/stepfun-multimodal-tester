@@ -1,0 +1,15 @@
+{
+  "name": "stepfun-multimodal-tester",
+  "version": "1.0.0",
+  "description": "Local test chatbox for StepFun multimodal Chat Completion and Messages API requests.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "check": "node --check src/server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

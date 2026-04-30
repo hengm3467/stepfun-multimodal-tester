@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StepFun Multimodal Tester</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">StepFun API Lab</p>
+          <h1>Multimodal chatbox tester</h1>
+          <p class="lede">Send text, image URL, base64 image, and video URL requests through a local API-key-safe proxy.</p>
+        </div>
+        <div class="status-card" id="healthCard">Checking server...</div>
+      </section>
+
+      <section class="workspace">
+        <form class="composer panel" id="testForm">
+          <div class="row two">
+            <label>
+              Endpoint
+              <select id="endpoint">
+                <option value="chat_completions">Chat Completion</option>
+                <option value="messages">Messages</option>
+              </select>
+            </label>
+            <label>
+              Model
+              <input id="model" value="step-3.6" />
+            </label>
+          </div>
+
+          <label>
+            StepFun API key
+            <input id="apiKey" type="password" autocomplete="off" placeholder="Paste API key here, or leave blank to use server env" />
+            <span class="field-hint">Stored only in this browser session and sent to the local proxy for this request. The server also accepts <code>STEPFUN_API_KEY</code> or <code>STEPFUN_APP_ID</code>.</span>
+          </label>
+
+          <label>
+            System message
+            <textarea id="system" rows="2">You are a multimodal test assistant. Answer concisely and describe visual content accurately.</textarea>
+          </label>
+
+          <label>
+            User prompt
+            <textarea id="prompt" rows="5" placeholder="Describe the image, summarize the video, or answer a question about the attachment.">Describe the visual content and mention any readable text.</textarea>
+          </label>
+
+          <div class="row three">
+            <label>
+              Temperature
+              <input id="temperature" type="number" min="0" max="2" step="0.1" value="0.2" />
+            </label>
+            <label>
+              Max tokens
+              <input id="maxTokens" type="number" min="1" max="8192" step="1" value="1024" />
+            </label>
+            <label class="checkline">
+              <input id="stream" type="checkbox" />
+              Stream flag
+            </label>
+          </div>
+
+          <div class="attachment-tools">
+            <button type="button" data-add="image_url">+ Image URL</button>
+            <button type="button" data-add="image_base64">+ Upload image</button>
+            <button type="button" data-add="video_url">+ Video URL</button>
+          </div>
+          <p class="field-hint">StepFun's Chat Completion docs accept video by URL only, so this tester does not upload video files directly. Host the MP4 first, then paste the HTTPS URL.</p>
+
+          <div id="attachments" class="attachments"></div>
+          <div id="warnings" class="warnings"></div>
+
+          <button class="send" type="submit">Send test request</button>
+        </form>
+
+        <aside class="panel results">
+          <div class="result-header">
+            <div>
+              <p class="eyebrow">Diagnostics</p>
+              <h2>Request & response</h2>
+            </div>
+            <button type="button" id="copyCurl">Copy curl</button>
+          </div>
+
+          <div class="metrics" id="metrics">
+            <span>Idle</span>
+          </div>
+
+          <label>
+            Assistant text
+            <textarea id="assistantText" rows="5" readonly placeholder="The model answer appears here."></textarea>
+          </label>
+
+          <details open>
+            <summary>Generated request JSON</summary>
+            <pre id="requestJson">{}</pre>
+          </details>
+
+          <details open>
+            <summary>Raw response JSON</summary>
+            <pre id="responseJson">{}</pre>
+          </details>
+        </aside>
+      </section>
+
+      <section class="panel history-panel">
+        <div class="result-header">
+          <div>
+            <p class="eyebrow">Regression Log</p>
+            <h2>Test history</h2>
+          </div>
+          <button id="clearHistory" type="button">Clear</button>
+        </div>
+        <div id="history" class="history empty">No tests yet.</div>
+      </section>
+    </main>
+
+    <template id="attachmentTemplate">
+      <article class="attachment">
+        <div class="attachment-head">
+          <strong></strong>
+          <button type="button" class="remove">Remove</button>
+        </div>
+        <div class="attachment-body"></div>
+      </article>
+    </template>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
