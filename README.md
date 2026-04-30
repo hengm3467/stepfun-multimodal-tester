@@ -42,7 +42,7 @@ The included GitHub Actions workflow deploys the `public/` folder to GitHub Page
 You can use either option:
 
 - Paste a StepFun API key into the web UI for the current browser session.
-- Set `STEPFUN_API_KEY` in `.env` or your shell before running `npm start`. The server also accepts `STEPFUN_APP_ID` as a fallback name if that is already defined in your environment.
+- Set `STEPFUN_API_KEY` in `.env` or your shell before running `npm start`.
 
 The key is never included in the generated request preview. When pasted in the UI, it is stored only in `sessionStorage`. On GitHub Pages it is sent directly from the browser to the StepFun API. In local server mode without a pasted key, the local `/api/test-chat` proxy adds `Authorization: Bearer ...` from the environment.
 

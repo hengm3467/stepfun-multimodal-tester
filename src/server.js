@@ -60,7 +60,7 @@ async function handleTestChat(req, res) {
   if (!apiKey) {
     sendJson(res, 500, {
       ok: false,
-      error: "Missing StepFun API key. Paste one in the app, create .env with STEPFUN_API_KEY, or export STEPFUN_API_KEY / STEPFUN_APP_ID before starting the app.",
+      error: "缺少 StepFun API Key。请在页面粘贴 API Key，或在本地运行时通过 STEPFUN_API_KEY 启动服务端。",
     });
     return;
   }
@@ -134,7 +134,7 @@ function buildChatCompletionsPayload(input) {
   messages.push({ role: "user", content });
 
   return {
-    model: input.model || "step-3.6",
+    model: input.model,
     messages,
     temperature: numberOrDefault(input.temperature, 0.2),
     max_tokens: integerOrDefault(input.maxTokens, 1024),
@@ -167,7 +167,7 @@ function buildMessagesPayload(input) {
   }
 
   return {
-    model: input.model || "step-3.6",
+    model: input.model,
     max_tokens: integerOrDefault(input.maxTokens, 1024),
     system: input.system ? String(input.system) : undefined,
     messages: [{ role: "user", content }],
@@ -178,28 +178,32 @@ function buildMessagesPayload(input) {
 
 function validateInput(input, endpoint) {
   if (!input.prompt && !(input.attachments || []).length) {
-    throw new Error("Enter a prompt or add at least one attachment.");
+    throw new Error("请输入提示词，或添加至少一个附件。");
+  }
+
+  if (!String(input.model || "").trim()) {
+    throw new Error("请输入模型名称。");
   }
 
   for (const attachment of input.attachments || []) {
     if (attachment.kind === "video_url" && endpoint === "messages") {
-      throw new Error("The StepFun Messages docs do not document video_url support. Use Chat Completion for video tests.");
+      throw new Error("Messages API 文档未说明支持 video_url。请使用 Chat Completion 进行视频测试。");
     }
 
     if ((attachment.kind === "image_url" || attachment.kind === "video_url") && !isHttpUrl(attachment.url)) {
-      throw new Error(`${attachment.kind} must use an http:// or https:// URL.`);
+      throw new Error(`${attachment.kind} 必须使用 http:// 或 https:// URL。`);
     }
 
     if (attachment.kind === "image_base64" && !isAllowedImageType(attachment.mediaType)) {
-      throw new Error(`Unsupported image media type: ${attachment.mediaType}`);
+      throw new Error(`不支持的图片类型：${attachment.mediaType}`);
     }
 
     if (attachment.kind === "image_base64" && !attachment.base64) {
-      throw new Error("Base64 image attachment is missing data.");
+      throw new Error("Base64 图片附件缺少数据。");
     }
 
     if ((attachment.kind === "image_url" || attachment.kind === "image_base64") && attachment.detail && !["low", "high"].includes(attachment.detail)) {
-      throw new Error("Image detail must be low or high.");
+      throw new Error("图片细节级别必须是 low 或 high。");
     }
   }
 }
@@ -286,7 +290,7 @@ function summarizeError(json, raw) {
 function redactLargeBase64(value) {
   return JSON.parse(JSON.stringify(value, (_key, val) => {
     if (typeof val === "string" && val.length > 500 && /base64|data:image/.test(val.slice(0, 80))) {
-      return `${val.slice(0, 120)}... [redacted ${val.length} chars]`;
+      return `${val.slice(0, 120)}... [已隐藏 ${val.length} 个字符]`;
     }
     return val;
   }));

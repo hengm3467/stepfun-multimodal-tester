@@ -59,7 +59,7 @@ form.addEventListener("submit", async (event) => {
   }
 
   form.querySelector(".send").disabled = true;
-  metricsEl.innerHTML = "<span>Sending...</span>";
+  metricsEl.innerHTML = "<span>发送中...</span>";
 
   try {
     const result = payload.apiKey
@@ -73,7 +73,7 @@ form.addEventListener("submit", async (event) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     responseJsonEl.textContent = pretty({ ok: false, error: message });
-    metricsEl.innerHTML = `<span class="badge fail">Client error</span>`;
+    metricsEl.innerHTML = `<span class="badge fail">客户端错误</span>`;
   } finally {
     form.querySelector(".send").disabled = false;
   }
@@ -133,8 +133,8 @@ copyCurlButton.addEventListener("click", async () => {
   if (!lastPayload) renderPreview();
   const curl = buildCurl(lastPayload);
   await navigator.clipboard.writeText(curl);
-  copyCurlButton.textContent = "Copied";
-  setTimeout(() => (copyCurlButton.textContent = "Copy curl"), 1200);
+  copyCurlButton.textContent = "已复制";
+  setTimeout(() => (copyCurlButton.textContent = "复制 curl"), 1200);
 });
 
 clearHistoryButton.addEventListener("click", () => {
@@ -170,21 +170,21 @@ function renderAttachments() {
 
     const body = node.querySelector(".attachment-body");
     if (attachment.kind === "image_url") {
-      body.append(labelWithInput("Image URL", "url", attachment.url, "https://example.com/image.png", attachment));
+      body.append(labelWithInput("图片 URL", "url", attachment.url, "https://example.com/image.png", attachment));
       body.append(detailSelect(attachment));
     }
 
     if (attachment.kind === "video_url") {
-      body.append(labelWithInput("MP4 video URL", "url", attachment.url, "https://example.com/video.mp4", attachment));
+      body.append(labelWithInput("MP4 视频 URL", "url", attachment.url, "https://example.com/video.mp4", attachment));
       const hint = document.createElement("div");
       hint.className = "warning";
-      hint.textContent = "Chat Completion only. Recommended: MP4 under 128 MB and under 5 minutes.";
+      hint.textContent = "仅 Chat Completion 支持。建议使用 128 MB 以内、5 分钟以内的 MP4。";
       body.append(hint);
     }
 
     if (attachment.kind === "image_base64") {
       const fileLabel = document.createElement("label");
-      fileLabel.textContent = "Image file";
+      fileLabel.textContent = "图片文件";
       const fileInput = document.createElement("input");
       fileInput.type = "file";
       fileInput.accept = "image/jpeg,image/png,image/webp,image/gif";
@@ -202,7 +202,7 @@ function renderAttachments() {
 
       const meta = document.createElement("div");
       meta.className = "warning";
-      meta.textContent = attachment.fileName ? `${attachment.fileName} (${attachment.mediaType}) loaded` : "Choose an image to convert to base64.";
+      meta.textContent = attachment.fileName ? `${attachment.fileName} (${attachment.mediaType}) 已加载` : "请选择一张图片，应用会将其转换为 Base64。";
       body.append(meta);
       body.append(detailSelect(attachment));
     }
@@ -229,7 +229,7 @@ function labelWithInput(labelText, key, value, placeholder, attachment) {
 
 function detailSelect(attachment) {
   const label = document.createElement("label");
-  label.textContent = "Image detail";
+  label.textContent = "图片细节级别";
   const select = document.createElement("select");
   for (const value of ["low", "high"]) {
     const option = document.createElement("option");
@@ -249,7 +249,7 @@ function detailSelect(attachment) {
 function buildClientPayload() {
   return {
     endpoint: endpointEl.value,
-    model: modelEl.value.trim() || "step-3.6",
+    model: modelEl.value.trim(),
     apiKey: apiKeyEl.value.trim(),
     system: systemEl.value.trim(),
     prompt: promptEl.value,
@@ -279,21 +279,22 @@ function renderWarnings() {
 function validateClientPayload(payload, warningsOnly = false) {
   const problems = [];
   if (!payload.apiKey && !serverHasApiKey && !warningsOnly) {
-    problems.push("Paste a StepFun API key, or start the server with STEPFUN_API_KEY / STEPFUN_APP_ID.");
+    problems.push("请粘贴 StepFun API Key；或在本地运行时使用 STEPFUN_API_KEY 启动服务端。");
   }
-  if (!payload.prompt.trim() && payload.attachments.length === 0) problems.push("Enter a prompt or add an attachment.");
+  if (!payload.model.trim()) problems.push("请输入模型名称。");
+  if (!payload.prompt.trim() && payload.attachments.length === 0) problems.push("请输入提示词，或添加至少一个附件。");
   for (const attachment of payload.attachments) {
     if (attachment.kind === "video_url" && payload.endpoint === "messages") {
-      problems.push("Messages API does not document video support. Switch to Chat Completion for video tests.");
+      problems.push("Messages API 文档未说明支持视频。请切换到 Chat Completion 进行视频测试。");
     }
     if ((attachment.kind === "image_url" || attachment.kind === "video_url") && attachment.url && !/^https?:\/\//i.test(attachment.url)) {
-      problems.push(`${titleForAttachment(attachment.kind)} must use http:// or https://.`);
+      problems.push(`${titleForAttachment(attachment.kind)} 必须使用 http:// 或 https://。`);
     }
     if ((attachment.kind === "image_url" || attachment.kind === "video_url") && !attachment.url && !warningsOnly) {
-      problems.push(`${titleForAttachment(attachment.kind)} is missing a URL.`);
+      problems.push(`${titleForAttachment(attachment.kind)} 缺少 URL。`);
     }
     if (attachment.kind === "image_base64" && !attachment.base64 && !warningsOnly) {
-      problems.push("Uploaded image attachment is missing file data.");
+      problems.push("上传的图片附件缺少文件数据。");
     }
   }
   return problems;
@@ -315,12 +316,12 @@ async function checkHealth() {
     const health = await response.json();
     serverHasApiKey = Boolean(health.hasApiKey);
     healthCard.innerHTML = health.hasApiKey
-      ? "<strong>Ready</strong><br>Server has an API key. You can also paste one per session."
-      : "<strong>Paste key</strong><br>No server API key found. Use the field in the form.";
+      ? "<strong>就绪</strong><br>服务端已配置 API Key。你也可以为当前会话粘贴新的 Key。"
+      : "<strong>请粘贴 Key</strong><br>未检测到服务端 API Key，请使用表单中的字段。";
     renderWarnings();
   } catch {
     serverHasApiKey = false;
-    healthCard.innerHTML = "<strong>Static mode</strong><br>Paste an API key to call the API directly from your browser.";
+    healthCard.innerHTML = "<strong>静态模式</strong><br>请粘贴 API Key，浏览器会直接调用 API。";
     renderWarnings();
   }
 }
@@ -328,7 +329,7 @@ async function checkHealth() {
 function renderMetrics(result) {
   metricsEl.innerHTML = "";
   const items = [
-    badge(result.ok ? "Pass" : "Fail", result.ok ? "pass" : "fail"),
+    badge(result.ok ? "通过" : "失败", result.ok ? "pass" : "fail"),
     badge(`HTTP ${result.status}`),
     badge(`${result.latencyMs} ms`),
     badge(result.endpoint),
@@ -355,7 +356,7 @@ function addHistory(result, payload) {
 function renderHistory() {
   if (!history.length) {
     historyEl.className = "history empty";
-    historyEl.textContent = "No tests yet.";
+    historyEl.textContent = "暂无测试记录。";
     return;
   }
   historyEl.className = "history";
@@ -365,9 +366,9 @@ function renderHistory() {
     row.className = "history-item";
     row.innerHTML = `
       <span>${item.at}</span>
-      <span class="badge ${item.ok ? "pass" : "fail"}">${item.ok ? "Pass" : "Fail"} ${item.status}</span>
-      <span>${escapeHtml(item.prompt || "No prompt")}</span>
-      <span>${item.attachments} files</span>
+      <span class="badge ${item.ok ? "pass" : "fail"}">${item.ok ? "通过" : "失败"} ${item.status}</span>
+      <span>${escapeHtml(item.prompt || "无提示词")}</span>
+      <span>${item.attachments} 个附件</span>
       <span>${item.latencyMs} ms</span>
     `;
     historyEl.append(row);
@@ -383,9 +384,9 @@ function badge(text, kind = "") {
 
 function titleForAttachment(kind) {
   return {
-    image_url: "Image URL",
-    image_base64: "Base64 image",
-    video_url: "Video URL",
+    image_url: "图片 URL",
+    image_base64: "Base64 图片",
+    video_url: "视频 URL",
   }[kind] || kind;
 }
 
@@ -400,8 +401,8 @@ function fileToDataUrl(file) {
 
 function redactPreview(value) {
   return JSON.parse(JSON.stringify(value, (key, val) => {
-    if (key === "apiKey" && val) return "[redacted]";
-    if (key === "base64" && typeof val === "string" && val.length > 160) return `${val.slice(0, 80)}... [redacted ${val.length} chars]`;
+    if (key === "apiKey" && val) return "[已隐藏]";
+    if (key === "base64" && typeof val === "string" && val.length > 160) return `${val.slice(0, 80)}... [已隐藏 ${val.length} 个字符]`;
     return val;
   }));
 }
@@ -506,7 +507,7 @@ function extractAssistantText(endpoint, response) {
 }
 
 function summarizeError(json, raw) {
-  return json?.error?.message || json?.message || raw || "API request failed.";
+  return json?.error?.message || json?.message || raw || "API 请求失败。";
 }
 
 function stripDataUrlPrefix(value) {
