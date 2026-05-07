@@ -2,7 +2,15 @@
 
 A local test chatbox for validating multimodal requests to StepFun models.
 
+## API Format Compatibility
+
+This tool follows the **OpenAI Chat Completions API** format for maximum compatibility. The generated requests can be used with any OpenAI-compatible API.
+
+**StepFun extension:** `video_url` is a StepFun-specific extension and not part of the OpenAI standard.
+
 ## What it tests
+
+- **OpenAI-compatible format** — Requests follow OpenAI Chat Completions API structure
 
 - Chat Completion endpoint: `POST https://api.stepfun.com/v1/chat/completions`
 - Messages endpoint: `POST https://api.stepfun.com/v1/messages`
@@ -48,7 +56,9 @@ The key is never included in the generated request preview. When pasted in the U
 
 ## Endpoint-specific request mapping
 
-### Chat Completion image URL
+All formats below follow the OpenAI Chat Completions API standard, except where noted.
+
+### Chat Completion image URL (OpenAI standard)
 
 ```json
 {
@@ -60,7 +70,7 @@ The key is never included in the generated request preview. When pasted in the U
 }
 ```
 
-### Chat Completion base64 image
+### Chat Completion base64 image (OpenAI standard)
 
 ```json
 {
@@ -72,7 +82,9 @@ The key is never included in the generated request preview. When pasted in the U
 }
 ```
 
-### Chat Completion video URL
+### Chat Completion video URL (StepFun extension)
+
+> **Note:** `video_url` is not part of the OpenAI API. This is a StepFun-specific extension.
 
 ```json
 {
@@ -83,7 +95,9 @@ The key is never included in the generated request preview. When pasted in the U
 }
 ```
 
-### Messages image URL
+### Messages image URL (Anthropic-style format)
+
+> **Note:** This endpoint uses Anthropic-style block format, not OpenAI format.
 
 ```json
 {
@@ -118,6 +132,9 @@ curl http://localhost:8787/api/health
 
 ## Notes
 
+- **OpenAI Compatibility:** The Chat Completion endpoint follows OpenAI's API format. You can use the generated requests with any OpenAI-compatible provider.
+- **StepFun Extensions:** `video_url` is a StepFun-specific feature and not part of the OpenAI standard.
+- **Messages Endpoint:** Uses Anthropic-style block format (`type: "image"`) instead of OpenAI's `image_url` format.
 - Video is only wired for the Chat Completion endpoint because the StepFun Messages documentation lists image blocks, not video blocks.
 - Direct video-file upload is not implemented because the StepFun Chat Completion docs document video input as `video_url` with an HTTP/HTTPS MP4 URL. To test a local MP4, upload/host it first and paste the URL.
 - The request preview redacts long base64 values to keep diagnostics readable.

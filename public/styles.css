@@ -131,6 +131,40 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent-2); box-s
 .checkline input { width: auto; }
 
 .attachment-tools { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+
+.format-info {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(13, 124, 102, 0.06);
+  border: 1px solid rgba(13, 124, 102, 0.2);
+}
+.format-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.format-info a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+.format-info a:hover {
+  text-decoration: underline;
+}
+
+.ext {
+  font-size: 0.65em;
+  background: #ff9800;
+  color: white;
+  padding: 3px 7px;
+  border-radius: 4px;
+  margin-left: 6px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
 button {
   border: 1px solid var(--line);
   background: #fff6e2;

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>StepFun 多模态接口测试器</title>
+    <title>StepFun 多模态接口测试器 (OpenAI 兼容格式)</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -12,7 +12,7 @@
         <div>
           <p class="eyebrow">StepFun API 实验室</p>
           <h1>多模态对话框测试器</h1>
-          <p class="lede">测试文本、图片 URL、Base64 图片和视频 URL 的多模态请求。</p>
+          <p class="lede">基于 OpenAI Chat Completions API 格式，支持文本、图片和视频的多模态请求。</p>
         </div>
         <div class="status-card" id="healthCard">正在检查运行环境...</div>
       </section>
@@ -23,8 +23,8 @@
             <label>
               接口
               <select id="endpoint">
-                <option value="chat_completions">Chat Completion</option>
-                <option value="messages">Messages</option>
+                <option value="chat_completions">Chat Completion (OpenAI 兼容)</option>
+                <option value="messages">Messages (Anthropic 风格)</option>
               </select>
             </label>
             <label>
@@ -38,6 +38,11 @@
             <input id="apiKey" type="password" autocomplete="off" placeholder="粘贴 API Key；本地运行时也可留空使用服务端环境变量" />
             <span class="field-hint">仅保存在当前浏览器会话中，用于本次请求。本地服务端也支持读取 <code>STEPFUN_API_KEY</code>。</span>
           </label>
+
+          <div class="format-info">
+            <p><strong>API 格式：</strong>遵循 <a href="https://platform.openai.com/docs/api-reference/chat/create" target="_blank">OpenAI Chat Completions API</a> 标准</p>
+            <p><strong>扩展支持：</strong>视频 URL (<code class="inline-code">video_url</code>) 为 StepFun 扩展字段</p>
+          </div>
 
           <label>
             系统提示词
@@ -67,7 +72,7 @@
           <div class="attachment-tools">
             <button type="button" data-add="image_url">+ 图片 URL</button>
             <button type="button" data-add="image_base64">+ 上传图片</button>
-            <button type="button" data-add="video_url">+ 视频 URL</button>
+            <button type="button" data-add="video_url">+ 视频 URL <span class="ext">扩展</span></button>
           </div>
           <p class="field-hint">视频当前按 URL 方式传入；请先将 MP4 文件托管到可访问的 HTTPS 地址，再粘贴 URL。</p>
 
